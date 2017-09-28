@@ -1,0 +1,44 @@
+defmodule EasyPost.API do
+  use HTTPoison.Base
+
+  require Logger
+
+  @endpoint "https://api.easypost.com/v2/"
+
+  def create(path, params) do
+    case EasyPost.API.post!(path, params) do
+      %{status_code: status_code, body: body} when status_code in 200..299 ->
+        {:ok, body}
+
+      %{status_code: status_code, body: body} when status_code in 400..499 ->
+        {:error, body}
+
+      _ ->
+        {:error, "could not create address"} # FIXME: match error type and format
+    end
+  end
+
+  defp process_url(url) do
+    @endpoint <> url
+  end
+
+  defp process_request_headers(headers) do
+    key = Application.get_env(:easy_post, :api_key)
+    auth_string = Base.encode64("#{key}:")
+
+    [{"Authorization", "Basic #{auth_string}"}] ++ headers
+  end
+
+  defp process_request_body(body) when is_binary(body), do: body
+  defp process_request_body(params) when is_list(params) do
+    Logger.debug("Request: " <> inspect(params))
+
+    {:form, params}
+  end
+
+  defp process_response_body(body) do
+    Logger.debug("Response: " <> body)
+
+    Poison.decode! body
+  end
+end
