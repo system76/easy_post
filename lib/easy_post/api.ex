@@ -5,8 +5,16 @@ defmodule EasyPost.API do
 
   @endpoint "https://api.easypost.com/v2/"
 
+  def read(path, id) do
+    get!("#{path}/#{id}") |> maybe_error
+  end
+
   def create(path, params) do
-    case EasyPost.API.post!(path, params) do
+    post!(path, params) |> maybe_error
+  end
+
+  defp maybe_error(response) do
+    case response do
       %{status_code: status_code, body: body} when status_code in 200..299 ->
         {:ok, body}
 

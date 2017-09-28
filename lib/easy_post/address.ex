@@ -6,10 +6,10 @@ defmodule EasyPost.Address do
 
   defstruct [
     id: nil,
+    mode: :test,
     created_at: nil,
     updated_at: nil,
 
-    mode: :test,
     street1: "",
     street2: "",
     city: "",
@@ -29,7 +29,10 @@ defmodule EasyPost.Address do
 
   @type t :: %__MODULE__{
     id: nil | String.t,
-    mode: :test | :production,
+    mode: EasyPost.mode,
+    created_at: DateTime.t,
+    updated_at: DateTime.t,
+
     street1: String.t,
     street2: String.t,
     city: String.t,
@@ -42,12 +45,11 @@ defmodule EasyPost.Address do
     company: String.t,
     phone: String.t,
     email: String.t,
-
-    created_at: DateTime.t,
-    updated_at: DateTime.t
   }
 
-  def create(params), do: @endpoint |> API.create(params)# |> format_response
+  def create(params), do: @endpoint |> API.create(params) |> format_response
+
+  def read(id), do: @endpoint |> API.read(id) |> format_response
 
   defp format_response({:error, reason}), do: {:error, reason}
   defp format_response({:ok, raw_address}) do

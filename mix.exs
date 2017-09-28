@@ -21,8 +21,12 @@ defmodule EasyPost.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Build and runtime dependencies
       {:httpoison, "~> 0.13.0"},
       {:poison, "~> 3.0"},
+
+      # Development and testing only dependencies
+      {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
     ]
   end
 end

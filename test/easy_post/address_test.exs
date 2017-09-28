@@ -18,12 +18,17 @@ defmodule EasyPost.AddressTest do
   test "creating a new address" do
     {:ok, address} = Address.create(@valid_address_params)
 
-    refute address
     assert address.mode == :test
     assert address.zip == "80202-2709"
   end
 
-  test "fetching an existing address"
+  test "retrieving an existing address" do
+    {:ok, address} = Address.create(@valid_address_params)
+    {:ok, address_copy} = Address.read(address.id)
 
+    assert address == address_copy
+  end
+
+  @tag :skip
   test "verifying an address"
 end
