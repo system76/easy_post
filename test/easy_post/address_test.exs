@@ -49,6 +49,25 @@ defmodule EasyPost.AddressTest do
     assert address == address_copy
   end
 
-  @tag :skip
-  test "verifying an address"
+  describe "verifying an address" do
+    test "with zip4" do
+      {:ok, address} = Address.create(@valid_params, verify: :zip4)
+
+      assert address.street1 == "1600 Champa"
+      assert address.zip == "80202-2709"
+    end
+
+    test "with delivery" do
+      {:ok, address} = Address.create(@valid_params, verify: :delivery)
+
+      assert address.street1 == "1600 CHAMPA ST STE 360"
+      assert address.zip == "80202-2709"
+    end
+
+    @tag :skip
+    test "fails with an error in strict mode"
+
+    @tag :skip
+    test "populates the verifications object"
+  end
 end

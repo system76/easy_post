@@ -24,7 +24,6 @@ defmodule EasyPost.Address do
     email: "",
     federal_tax_id: nil,
     state_tax_id: nil,
-    verifications: %{},
   ]
 
   @type t :: %__MODULE__{
@@ -47,7 +46,10 @@ defmodule EasyPost.Address do
     email: String.t,
   }
 
-  def create(params), do: @endpoint |> API.create(params) |> format_response
+  def create(params, opts \\ []) do
+    params = maybe_add_verification(params, opts)
+    @endpoint |> API.create(params) |> format_response
+  end
 
   def read(id), do: @endpoint |> API.read(id) |> format_response
 
@@ -61,5 +63,18 @@ defmodule EasyPost.Address do
       |> date_field(:updated_at)
 
     {:ok, address}
+  end
+
+  defp maybe_add_verification(params, opts) do
+    verify = Keyword.get(opts, :verify, nil)
+    strict = Keyword.get(opts, :strict, false)
+
+    case {verify, strict} do
+      {:zip4, false} -> [{"verify[]", "zip4"} | params]
+      {:zip4, true} -> [{"verify_strict[]", "zip4"} | params]
+      {:delivery, false} -> [{"verify[]", "delivery"} | params]
+      {:delivery, true} -> [{"verify_strict[]", "delivery"} | params]
+      _ -> params
+    end
   end
 end
