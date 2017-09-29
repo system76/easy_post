@@ -10,14 +10,48 @@ defmodule EasyPost.ParcelTest do
     {"parcel[weight]", "16.0"},
   ]
 
+  @valid_predefined_params [
+    {"parcel[predefined_package]", "SmallFlatRateBox"},
+    {"parcel[weight]", "16.0"},
+  ]
+
   test "creating a new parcel" do
     {:ok, parcel} = Parcel.create(@valid_params)
 
-    assert parcel.mode == :test
+    refute is_nil(parcel.id)
+    assert parcel.created_at.__struct__ == DateTime
+    assert parcel.updated_at.__struct__ == DateTime
+    assert parcel == %Parcel{
+      id: parcel.id,
+      mode: :test,
+      length: 12.0,
+      width: 12.0,
+      height: 12.0,
+      predefined_package: nil,
+      weight: 16.0,
+      created_at: parcel.created_at,
+      updated_at: parcel.updated_at,
+    }
   end
 
-  @tag :skip
-  test "creating a new parcel from a predefined package"
+  test "creating a new parcel from a predefined package" do
+    {:ok, parcel} = Parcel.create(@valid_predefined_params)
+
+    refute is_nil(parcel.id)
+    assert parcel.created_at.__struct__ == DateTime
+    assert parcel.updated_at.__struct__ == DateTime
+    assert parcel == %Parcel{
+      id: parcel.id,
+      mode: :test,
+      length: nil,
+      width: nil,
+      height: nil,
+      predefined_package: "SmallFlatRateBox",
+      weight: 16.0,
+      created_at: parcel.created_at,
+      updated_at: parcel.updated_at,
+    }
+  end
 
   test "retrieving an existing parcel" do
     {:ok, parcel} = Parcel.create(@valid_params)
