@@ -55,8 +55,8 @@ defmodule EasyPost.Address do
   @type verification :: %{
     success: boolean,
     details: %{
-      latitude: String.t,
-      longitude: String.t,
+      latitude: float,
+      longitude: float,
       time_zone: Calendar.time_zone,
     },
     errors: [Error.field_error],
