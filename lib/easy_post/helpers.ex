@@ -26,8 +26,7 @@ defmodule EasyPost.Helpers do
 
     resource_data =
       raw_response
-      |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
-      |> Enum.into(%{})
+      |> deep_atomize_keys
       |> mode_field(:mode)
       |> date_field(:created_at)
       |> date_field(:updated_at)
@@ -51,5 +50,17 @@ defmodule EasyPost.Helpers do
         {:error, _} -> nil
       end
     end)
+  end
+
+  defp deep_atomize_keys(obj) when is_map(obj) do
+    obj
+    |> Enum.map(fn {k, v} -> {String.to_atom(k), deep_atomize_keys(v)} end)
+    |> Enum.into(%{})
+  end
+  defp deep_atomize_keys(obj) when is_list(obj) do
+    Enum.map(obj, &deep_atomize_keys/1)
+  end
+  defp deep_atomize_keys(obj) do
+    obj
   end
 end

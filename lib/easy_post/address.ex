@@ -1,6 +1,7 @@
 defmodule EasyPost.Address do
   import EasyPost.Helpers
-  alias EasyPost.API
+
+  alias EasyPost.{API, Error}
 
   @endpoint "addresses"
 
@@ -24,6 +25,7 @@ defmodule EasyPost.Address do
     email: "",
     federal_tax_id: nil,
     state_tax_id: nil,
+    verifications: %{},
   ]
 
   @type t :: %__MODULE__{
@@ -44,6 +46,20 @@ defmodule EasyPost.Address do
     company: String.t,
     phone: String.t,
     email: String.t,
+    verifications: %{
+      optional(:zip4) => verification,
+      optional(:delivery) => verification,
+    },
+  }
+
+  @type verification :: %{
+    success: boolean,
+    details: %{
+      latitude: String.t,
+      longitude: String.t,
+      time_zone: Calendar.time_zone,
+    },
+    errors: [Error.field_error],
   }
 
   def create(params, opts \\ []) do

@@ -41,6 +41,7 @@ defmodule EasyPost.AddressTest do
       email: nil,
       federal_tax_id: nil,
       state_tax_id: nil,
+      verifications: %{},
     }
   end
 
@@ -76,7 +77,15 @@ defmodule EasyPost.AddressTest do
     test "populates the verifications object" do
       {:ok, address} = Address.create(@valid_params, verify: :delivery)
 
-    @tag :skip
-    test "populates the verifications object"
+      assert address.verifications.delivery == %{
+        success: true,
+        details: %{
+          latitude: 39.74646,
+          longitude: -104.99388,
+          time_zone: "America/Denver"
+        },
+        errors: [],
+      }
+    end
   end
 end
