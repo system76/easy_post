@@ -3,16 +3,16 @@ defmodule EasyPost.AddressTest do
 
   alias EasyPost.Address
 
-  @valid_params [
-    {"address[name]", "Carl Richell"},
-    {"address[company]", "System76"},
-    {"address[street1]", "1600 Champa"},
-    {"address[street2]", "Suite 360"},
-    {"address[city]", "Denver"},
-    {"address[state]", "CO"},
-    {"address[zip]", "80202"},
-    {"address[country]", "US"},
-  ]
+  @valid_params %{
+    name: "Carl Richell",
+    company: "System76",
+    street1: "1600 Champa",
+    street2: "Suite 360",
+    city: "Denver",
+    state: "CO",
+    zip: "80202",
+    country: "US",
+  }
 
   test "creating a new address" do
     {:ok, address} = Address.create(@valid_params)

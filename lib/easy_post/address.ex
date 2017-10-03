@@ -47,34 +47,22 @@ defmodule EasyPost.Address do
   }
 
   def create(params, opts \\ []) do
-    params = maybe_add_verification(params, opts)
-    @endpoint |> API.create(params) |> format_response
+    params = %{address: params} |> maybe_add_verification(opts)
+    API.create(@endpoint, params)
   end
 
-  def read(id), do: @endpoint |> API.read(id) |> format_response
-
-  defp format_response({:error, reason}), do: {:error, reason}
-  defp format_response({:ok, raw_address}) do
-    address =
-      raw_address
-      |> into(__MODULE__)
-      |> mode_field(:mode)
-      |> date_field(:created_at)
-      |> date_field(:updated_at)
-
-    {:ok, address}
-  end
+  def read(id), do: @endpoint |> API.read(id)
 
   defp maybe_add_verification(params, opts) do
     verify = Keyword.get(opts, :verify, nil)
     strict = Keyword.get(opts, :strict, false)
 
     case {verify, strict} do
-      {:zip4, false} -> [{"verify[]", "zip4"} | params]
-      {:zip4, true} -> [{"verify_strict[]", "zip4"} | params]
-      {:delivery, false} -> [{"verify[]", "delivery"} | params]
-      {:delivery, true} -> [{"verify_strict[]", "delivery"} | params]
-      _ -> params
+      {:zip4, false}     -> Map.put(params, :verify,        ["zip4"])
+      {:zip4, true}      -> Map.put(params, :verify_strict, ["zip4"])
+      {:delivery, false} -> Map.put(params, :verify,        ["delivery"])
+      {:delivery, true}  -> Map.put(params, :verify_strict, ["delivery"])
+      _                  -> params
     end
   end
 end

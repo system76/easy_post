@@ -1,16 +1,18 @@
 defmodule EasyPost.API do
   use HTTPoison.Base
 
+  import EasyPost.Helpers, only: [format_params: 1, hydrate_response: 1]
+
   require Logger
 
   @endpoint "https://api.easypost.com/v2/"
 
   def read(path, id) do
-    get!("#{path}/#{id}") |> maybe_error
+    get!("#{path}/#{id}") |> maybe_error |> hydrate_response
   end
 
   def create(path, params) do
-    post!(path, params) |> maybe_error
+    post!(path, format_params(params)) |> maybe_error |> hydrate_response
   end
 
   defp maybe_error(response) do

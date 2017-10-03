@@ -3,17 +3,17 @@ defmodule EasyPost.ParcelTest do
 
   alias EasyPost.Parcel
 
-  @valid_params [
-    {"parcel[length]", "12.0"},
-    {"parcel[width]", "12.0"},
-    {"parcel[height]", "12.0"},
-    {"parcel[weight]", "16.0"},
-  ]
+  @valid_params %{
+    length: "12.0",
+    width: "12.0",
+    height: "12.0",
+    weight: "16.0",
+  }
 
-  @valid_predefined_params [
-    {"parcel[predefined_package]", "SmallFlatRateBox"},
-    {"parcel[weight]", "16.0"},
-  ]
+  @valid_predefined_params %{
+    predefined_package: "SmallFlatRateBox",
+    weight: "16.0",
+  }
 
   test "creating a new parcel" do
     {:ok, parcel} = Parcel.create(@valid_params)

@@ -30,19 +30,6 @@ defmodule EasyPost.Parcel do
     weight: EasyPost.ounces,
   }
 
-  def create(params), do: @endpoint |> API.create(params) |> format_response
-
-  def read(id), do: @endpoint |> API.read(id) |> format_response
-
-  defp format_response({:error, reason}), do: {:error, reason}
-  defp format_response({:ok, raw_parcel}) do
-    parcel =
-      raw_parcel
-      |> into(__MODULE__)
-      |> mode_field(:mode)
-      |> date_field(:created_at)
-      |> date_field(:updated_at)
-
-    {:ok, parcel}
-  end
+  def create(params), do: API.create(@endpoint, %{parcel: params})
+  def read(id), do: API.read(@endpoint, id)
 end
