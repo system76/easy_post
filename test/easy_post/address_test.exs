@@ -1,7 +1,7 @@
 defmodule EasyPost.AddressTest do
   use ExUnit.Case, async: false
 
-  alias EasyPost.Address
+  alias EasyPost.{Address, Error}
 
   @valid_params %{
     name: "Carl Richell",
@@ -13,6 +13,8 @@ defmodule EasyPost.AddressTest do
     zip: "80202",
     country: "US",
   }
+
+  @invalid_params %{@valid_params | street1: "123 Fake St."}
 
   test "creating a new address" do
     {:ok, address} = Address.create(@valid_params)
@@ -64,8 +66,15 @@ defmodule EasyPost.AddressTest do
       assert address.zip == "80202-2709"
     end
 
-    @tag :skip
-    test "fails with an error in strict mode"
+    test "fails with an error in strict mode" do
+      {:error, error} = Address.create(@invalid_params, verify: :delivery, strict: true)
+
+      assert match?(error, %Error{})
+      assert error.code == "ADDRESS.VERIFY.FAILURE"
+    end
+
+    test "populates the verifications object" do
+      {:ok, address} = Address.create(@valid_params, verify: :delivery)
 
     @tag :skip
     test "populates the verifications object"

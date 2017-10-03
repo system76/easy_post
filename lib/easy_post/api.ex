@@ -3,6 +3,8 @@ defmodule EasyPost.API do
 
   import EasyPost.Helpers, only: [format_params: 1, hydrate_response: 1]
 
+  alias EasyPost.Error
+
   require Logger
 
   @endpoint "https://api.easypost.com/v2/"
@@ -21,7 +23,18 @@ defmodule EasyPost.API do
         {:ok, body}
 
       %{status_code: status_code, body: body} when status_code in 400..499 ->
-        {:error, body}
+        error = %Error{
+          code: get_in(body, ["error", "code"]),
+          message: get_in(body, ["error", "message"]),
+          errors: Enum.map(get_in(body, ["error", "errors"]), fn field_error ->
+            %{
+              field: field_error["field"],
+              message: field_error["message"],
+            }
+          end)
+        }
+
+        {:error, error}
 
       _ ->
         {:error, "could not create address"} # FIXME: match error type and format
