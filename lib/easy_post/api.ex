@@ -3,27 +3,36 @@ defmodule EasyPost.API do
 
   import EasyPost.Helpers, only: [format_params: 1, hydrate_response: 1]
 
-  alias EasyPost.Error
-
   require Logger
 
   @endpoint "https://api.easypost.com/v2/"
 
-  def read(path, id) do
-    get!("#{path}/#{id}") |> maybe_error |> hydrate_response
+  def request(method, url, body \\ "", headers \\ [], options \\ []) do
+    url = if is_list(url), do: Enum.join(url, "/"), else: url
+    super(method, url, body, headers, options) |> maybe_error |> hydrate_response
   end
 
-  def create(path, params) do
-    post!(path, format_params(params)) |> maybe_error |> hydrate_response
+  def request!(method, url, body \\ "", headers \\ [], options \\ []) do
+    case request(method, url, body, headers, options) do
+      {:ok, response} ->
+        response
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        raise HTTPoison.Error, reason: reason
+
+      {:error, %EasyPost.Error{code: code, message: message, errors: errors}} ->
+        raise EasyPost.Error, code: code, message: message, errors: errors
+    end
   end
 
-  defp maybe_error(response) do
+  defp maybe_error({:error, reason}), do: {:error, reason}
+  defp maybe_error({:ok, response}) do
     case response do
       %{status_code: status_code, body: body} when status_code in 200..299 ->
         {:ok, body}
 
       %{status_code: status_code, body: body} when status_code in 400..499 ->
-        error = %Error{
+        {:error, %EasyPost.Error{
           code: get_in(body, ["error", "code"]),
           message: get_in(body, ["error", "message"]),
           errors: Enum.map(get_in(body, ["error", "errors"]), fn field_error ->
@@ -32,18 +41,14 @@ defmodule EasyPost.API do
               message: field_error["message"],
             }
           end)
-        }
-
-        {:error, error}
+        }}
 
       _ ->
-        {:error, "could not create address"} # FIXME: match error type and format
+        {:error, %HTTPoison.Error{reason: "could not parse response"}}
     end
   end
 
-  defp process_url(url) do
-    @endpoint <> url
-  end
+  defp process_url(url), do: @endpoint <> url
 
   defp process_request_headers(headers) do
     key = Application.get_env(:easy_post, :api_key)
@@ -52,7 +57,10 @@ defmodule EasyPost.API do
     [{"Authorization", "Basic #{auth_string}"}] ++ headers
   end
 
-  defp process_request_body(body) when is_binary(body), do: body
+  defp process_request_body(body) when is_binary(body),
+    do: body
+  defp process_request_body(params) when is_map(params),
+    do: process_request_body(format_params(params))
   defp process_request_body(params) when is_list(params) do
     Logger.debug("Request: " <> inspect(params))
 

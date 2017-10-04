@@ -47,7 +47,7 @@ defmodule EasyPost.AddressTest do
 
   test "retrieving an existing address" do
     {:ok, address} = Address.create(@valid_params)
-    {:ok, address_copy} = Address.read(address.id)
+    {:ok, address_copy} = Address.retrieve(address.id)
 
     assert address == address_copy
   end
@@ -70,7 +70,7 @@ defmodule EasyPost.AddressTest do
     test "fails with an error in strict mode" do
       {:error, error} = Address.create(@invalid_params, verify: :delivery, strict: true)
 
-      assert match?(error, %Error{})
+      assert match?(%Error{}, error)
       assert error.code == "ADDRESS.VERIFY.FAILURE"
     end
 

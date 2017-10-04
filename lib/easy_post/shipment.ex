@@ -1,5 +1,4 @@
 defmodule EasyPost.Shipment do
-  import EasyPost.Helpers
   alias EasyPost.{API, Address, Parcel}
 
   @endpoint "shipments"
@@ -58,4 +57,26 @@ defmodule EasyPost.Shipment do
     batch_status: nil | String.t,
     batch_message: nil | String.t,
   }
+
+  def create(params) do
+    params = sanitize_params(params)
+    API.post(@endpoint, %{shipment: sanitize_params(params)})
+  end
+
+  def retrieve(id), do: API.get([@endpoint, id])
+
+  defp sanitize_params(params) do
+    Enum.reduce [:from_address, :to_address, :parcel], params, fn field, params ->
+      Map.update!(params, field, fn
+        id when is_binary(id) ->
+          %{id: id}
+        params ->
+          if Map.has_key?(params, :id) do
+            %{id: params.id}
+          else
+            params
+          end
+      end)
+    end
+  end
 end

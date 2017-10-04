@@ -1,6 +1,4 @@
 defmodule EasyPost.Address do
-  import EasyPost.Helpers
-
   alias EasyPost.{API, Error}
 
   @endpoint "addresses"
@@ -64,10 +62,10 @@ defmodule EasyPost.Address do
 
   def create(params, opts \\ []) do
     params = %{address: params} |> maybe_add_verification(opts)
-    API.create(@endpoint, params)
+    API.post(@endpoint, params)
   end
 
-  def read(id), do: @endpoint |> API.read(id)
+  def retrieve(id), do: API.get([@endpoint, id])
 
   defp maybe_add_verification(params, opts) do
     verify = Keyword.get(opts, :verify, nil)

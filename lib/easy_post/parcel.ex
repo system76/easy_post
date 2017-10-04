@@ -1,5 +1,4 @@
 defmodule EasyPost.Parcel do
-  import EasyPost.Helpers
   alias EasyPost.API
 
   @endpoint "parcels"
@@ -30,6 +29,6 @@ defmodule EasyPost.Parcel do
     weight: EasyPost.ounces,
   }
 
-  def create(params), do: API.create(@endpoint, %{parcel: params})
-  def read(id), do: API.read(@endpoint, id)
+  def create(params), do: API.post(@endpoint, %{parcel: params})
+  def retrieve(id), do: API.get([@endpoint, id])
 end

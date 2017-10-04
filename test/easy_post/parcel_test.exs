@@ -55,7 +55,7 @@ defmodule EasyPost.ParcelTest do
 
   test "retrieving an existing parcel" do
     {:ok, parcel} = Parcel.create(@valid_params)
-    {:ok, parcel_copy} = Parcel.read(parcel.id)
+    {:ok, parcel_copy} = Parcel.retrieve(parcel.id)
 
     assert parcel == parcel_copy
   end
