@@ -30,6 +30,7 @@ defmodule EasyPost.Mixfile do
       {:poison, "~> 3.0"},
 
       # Development and testing only dependencies
+      {:ex_doc, ">= 0.0.0", only: :dev},
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
     ]
   end
