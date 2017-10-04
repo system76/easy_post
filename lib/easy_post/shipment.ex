@@ -15,6 +15,8 @@ defmodule EasyPost.Shipment do
     return_address: nil,
     buyer_address: nil,
     parcel: nil,
+    rates: [],
+    selected_rate: nil,
     is_return: false,
     tracking_code: nil,
     usps_zone: nil,
@@ -41,8 +43,8 @@ defmodule EasyPost.Shipment do
     # scan_form: nil | ScanForm.t,
     # forms: [Form.t],
     # insurance: nil | Insurance.t,
-    # rates: Rate.t,
-    # selected_rate: Rate.t,
+    rates: [Rate.t],
+    selected_rate: nil | Rate.t,
     # postage_label: PostageLabel.t,
     # messages: [Message.t],
     # options: Options.t,
@@ -62,6 +64,8 @@ defmodule EasyPost.Shipment do
     params = sanitize_params(params)
     API.post(@endpoint, %{shipment: sanitize_params(params)})
   end
+
+  def retrieve_list(params), do: API.get(@endpoint, [], params: params)
 
   def retrieve(id), do: API.get([@endpoint, id])
 

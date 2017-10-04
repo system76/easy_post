@@ -22,23 +22,41 @@ defmodule EasyPost.Helpers do
 
   def hydrate_response({:error, reason}), do: {:error, reason}
   def hydrate_response({:ok, raw_response}) do
-    resource_module = module_for(raw_response["object"])
+    raw_data = deep_atomize_keys(raw_response)
 
+    {:ok, do_unserialize(raw_data, module_for(raw_data))}
+  end
+
+  defp do_unserialize(raw_data, {:ok, resource_module}) do
     resource_data =
-      raw_response
-      |> deep_atomize_keys
+      raw_data
       |> mode_field(:mode)
       |> date_field(:created_at)
       |> date_field(:updated_at)
 
-    resource = struct(resource_module, resource_data)
+    resource_data =
+      resource_data
+      |> Enum.map(fn
+        {k, v} when is_map(v) ->
+          {k, do_unserialize(v, module_for(v))}
 
-    {:ok, resource}
+        {k, v} when is_list(v) ->
+          {k, Enum.map(v, &do_unserialize(&1, module_for(&1)))}
+
+        {k, v} ->
+          {k, v}
+      end)
+      |> Enum.into(%{})
+
+    struct(resource_module, resource_data)
   end
+  defp do_unserialize(data, :error), do: data
 
-  defp module_for("Address"), do: EasyPost.Address
-  defp module_for("Parcel"), do: EasyPost.Parcel
-  defp module_for("Shipment"), do: EasyPost.Shipment
+  defp module_for(%{object: "Address"}),  do: {:ok, EasyPost.Address}
+  defp module_for(%{object: "Parcel"}),   do: {:ok, EasyPost.Parcel}
+  defp module_for(%{object: "Shipment"}), do: {:ok, EasyPost.Shipment}
+  defp module_for(%{object: "Rate"}),     do: {:ok, EasyPost.Shipment.Rate}
+  defp module_for(_),                     do: :error
 
   def mode_field(resource, key),
     do: Map.update!(resource, key, &String.to_existing_atom/1)

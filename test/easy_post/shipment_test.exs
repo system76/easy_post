@@ -78,6 +78,16 @@ defmodule EasyPost.ShipmentTest do
     end
   end
 
+  test "populating Rate data" do
+    {:ok, shipment} = Shipment.create(%{
+      from_address: @from_address_params,
+      to_address: @to_address_params,
+      parcel: @parcel_params,
+    })
+
+    assert match?(%Shipment.Rate{}, hd(shipment.rates))
+  end
+
   @tag :skip
   test "retrieving a list of shipments"
 
