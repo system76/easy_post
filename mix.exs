@@ -7,7 +7,11 @@ defmodule EasyPost.Mixfile do
       version: "0.1.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      description: description(),
+      package: package(),
+      deps: deps(),
+      name: "EasyPost",
+      source_url: "https://github.com/system76/easy_post",
     ]
   end
 
@@ -27,6 +31,19 @@ defmodule EasyPost.Mixfile do
 
       # Development and testing only dependencies
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
+    ]
+  end
+
+  defp description do
+    "An API client for EasyPost"
+  end
+
+  defp package do
+    [
+      name: "easy_post",
+      maintainers: ["Ben Cates"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/system76/easy_post"},
     ]
   end
 end
