@@ -1,5 +1,5 @@
 defmodule EasyPost.Shipment do
-  alias EasyPost.{API, Address, Parcel}
+  alias EasyPost.{API, Address, Parcel, Shipment}
 
   @endpoint "shipments"
 
@@ -43,8 +43,8 @@ defmodule EasyPost.Shipment do
     # scan_form: nil | ScanForm.t,
     # forms: [Form.t],
     # insurance: nil | Insurance.t,
-    rates: [Rate.t],
-    selected_rate: nil | Rate.t,
+    rates: [Shipment.Rate.t],
+    selected_rate: nil | Shipment.Rate.t,
     # postage_label: PostageLabel.t,
     # messages: [Message.t],
     # options: Options.t,
@@ -62,12 +62,16 @@ defmodule EasyPost.Shipment do
 
   def create(params) do
     params = sanitize_params(params)
-    API.post(@endpoint, %{shipment: sanitize_params(params)})
+    @endpoint |> API.post(%{shipment: params}) |> API.format_response()
   end
 
-  def retrieve_list(params), do: API.get(@endpoint, [], params: params)
+  def retrieve_list(params) do
+    @endpoint |> API.get([], params: params) |> API.format_response()
+  end
 
-  def retrieve(id), do: API.get([@endpoint, id])
+  def retrieve(id) do
+    "#{@endpoint}/#{id}" |> API.get() |> API.format_response()
+  end
 
   defp sanitize_params(params) do
     Enum.reduce [:from_address, :to_address, :parcel], params, fn field, params ->

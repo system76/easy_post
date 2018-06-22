@@ -4,7 +4,7 @@ defmodule EasyPost.Mixfile do
   def project do
     [
       app: :easy_post,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       description: description(),
@@ -30,6 +30,7 @@ defmodule EasyPost.Mixfile do
       {:poison, "~> 3.0"},
 
       # Development and testing only dependencies
+      {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
     ]

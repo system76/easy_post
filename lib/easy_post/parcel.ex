@@ -29,6 +29,11 @@ defmodule EasyPost.Parcel do
     weight: EasyPost.ounces,
   }
 
-  def create(params), do: API.post(@endpoint, %{parcel: params})
-  def retrieve(id), do: API.get([@endpoint, id])
+  def create(params) do
+    @endpoint |> API.post(%{parcel: params}) |> API.format_response()
+  end
+
+  def retrieve(id) do
+    "#{@endpoint}/#{id}" |> API.get() |> API.format_response()
+  end
 end

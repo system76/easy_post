@@ -7,22 +7,8 @@ defmodule EasyPost.API do
 
   @endpoint "https://api.easypost.com/v2/"
 
-  def request(method, url, body \\ "", headers \\ [], options \\ []) do
-    url = if is_list(url), do: Enum.join(url, "/"), else: url
-    super(method, url, body, headers, options) |> maybe_error |> hydrate_response
-  end
-
-  def request!(method, url, body \\ "", headers \\ [], options \\ []) do
-    case request(method, url, body, headers, options) do
-      {:ok, response} ->
-        response
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        raise HTTPoison.Error, reason: reason
-
-      {:error, %EasyPost.Error{code: code, message: message, errors: errors}} ->
-        raise EasyPost.Error, code: code, message: message, errors: errors
-    end
+  def format_response(response) do
+    response |> maybe_error() |> hydrate_response()
   end
 
   defp maybe_error({:error, reason}), do: {:error, reason}

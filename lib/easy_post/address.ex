@@ -62,10 +62,12 @@ defmodule EasyPost.Address do
 
   def create(params, opts \\ []) do
     params = %{address: params} |> maybe_add_verification(opts)
-    API.post(@endpoint, params)
+    @endpoint |> API.post(params) |> API.format_response()
   end
 
-  def retrieve(id), do: API.get([@endpoint, id])
+  def retrieve(id) do
+    "#{@endpoint}/#{id}" |> API.get() |> API.format_response()
+  end
 
   defp maybe_add_verification(params, opts) do
     verify = Keyword.get(opts, :verify, nil)
